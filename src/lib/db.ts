@@ -63,15 +63,20 @@ export async function getDb(): Promise<DbWrapper> {
     let u = (process.env.TURSO_DATABASE_URL || "").trim().replace(/["']/g, "");
     let t = (process.env.TURSO_AUTH_TOKEN || "").trim().replace(/["']/g, "");
 
-    // 1. Eliminar prefijos y sufijos accidentales
+    // 1. Eliminar prefijos y sufijos accidentales del token
     if (t.toLowerCase().startsWith("bearer ")) t = t.substring(7).trim();
+    t = t.replace(/\s/g, "");
 
-    // 2. Limpiar la URL de cualquier barra final o espacios internos
+    // 2. Limpieza profunda de la URL
     u = u.replace(/\s/g, "");
+    // Quitamos cualquier barra final o parámetros de consulta accidentales
+    if (u.includes('?')) u = u.split('?')[0];
     if (u.endsWith('/')) u = u.slice(0, -1);
 
-    // 3. El token NO debe tener espacios internos
-    t = t.replace(/\s/g, "");
+    // 3. Normalizar protocolo (CRÍTICO para Vercel: usar https en lugar de libsql)
+    if (u.startsWith("libsql://")) {
+        u = u.replace("libsql://", "https://");
+    }
 
     if (process.env.NODE_ENV === 'production') {
         if (!u || !t) {
