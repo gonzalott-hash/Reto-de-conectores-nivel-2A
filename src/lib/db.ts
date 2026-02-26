@@ -60,22 +60,15 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
-    // Limpieza ULTRA agresiva de URL y Token (solo caracteres ASCII válidos para URLs y JWTs)
-    let currentUrl = process.env.TURSO_DATABASE_URL?.replace(/[^a-zA-Z0-9:/._-]/g, '').trim();
-    const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/[^a-zA-Z0-9._-]/g, '').trim();
-
-    // Convertir libsql:// a https:// si es necesario (más compatible con ambientes serverless)
-    if (currentUrl?.startsWith('libsql://')) {
-        currentUrl = currentUrl.replace('libsql://', 'https://');
-    }
+    // Limpieza de URL y Token (eliminamos cualquier espacio, tabulación o salto de línea)
+    const currentUrl = process.env.TURSO_DATABASE_URL?.replace(/\s/g, '').trim();
+    const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s/g, '').trim();
 
     if (process.env.NODE_ENV === 'production') {
         if (!currentUrl || !currentToken) {
             throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN).");
         }
     }
-
-    console.log("Conectando a:", currentUrl?.substring(0, 20) + "...");
 
     clientInstance = createClient({
         url: currentUrl || "file:./sqlite.db",
