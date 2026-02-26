@@ -40,8 +40,15 @@ export default function Instrucciones() {
 
                 const res = await fetch(`/api/ejercicios/random?limit=${limit}`);
                 if (!res.ok) {
-                    const errorBody = await res.json();
-                    throw new Error(errorBody.error || "Error cargando ejercicios");
+                    let errorMsg = "Error del servidor al cargar ejercicios";
+                    try {
+                        const errorBody = await res.json();
+                        errorMsg = errorBody.error || errorMsg;
+                    } catch (e) {
+                        const text = await res.text();
+                        errorMsg = `Error HTTP ${res.status}: ${text.slice(0, 50)}...`;
+                    }
+                    throw new Error(errorMsg);
                 }
 
                 const data = await res.json();
