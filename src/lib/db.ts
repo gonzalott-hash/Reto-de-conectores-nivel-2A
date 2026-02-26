@@ -46,15 +46,18 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
+    const currentUrl = process.env.TURSO_DATABASE_URL;
+    const currentToken = process.env.TURSO_AUTH_TOKEN;
+
     if (process.env.NODE_ENV === 'production') {
-        if (!url || !authToken) {
+        if (!currentUrl || !currentToken) {
             throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN). Verifica la configuración de Vercel.");
         }
     }
 
     clientInstance = createClient({
-        url: safeUrl,
-        authToken: authToken,
+        url: currentUrl || "file:./sqlite.db",
+        authToken: currentToken,
     });
 
     wrapperInstance = new DbWrapper(clientInstance);
