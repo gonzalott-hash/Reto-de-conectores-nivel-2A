@@ -16,8 +16,8 @@ async function test() {
         ]);
         console.log("Insert result:", res);
 
-        console.log("Consultando configuracion...");
-        const config = await db.all("SELECT * FROM configuracion");
+        console.log("Consultando config_n2...");
+        const config = await db.all("SELECT * FROM config_n2");
         console.log("Config:", config);
 
         console.log("Consultando ejercicios_n2...");

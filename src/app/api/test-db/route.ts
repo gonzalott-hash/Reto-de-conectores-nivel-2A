@@ -11,10 +11,19 @@ export async function GET() {
             data: test
         });
     } catch (error: any) {
+        const url = process.env.TURSO_DATABASE_URL || "";
+        const token = process.env.TURSO_AUTH_TOKEN || "";
+
         return NextResponse.json({
             status: "error",
-            message: error?.message || 'Error desconocido desche api/test-db',
-            details: "Si ves un error 400 aquí, es un problema de protocolo/auth global."
+            message: error?.message || 'Error desconocido',
+            debug_info: {
+                url_length: url.length,
+                url_prefix: url.substring(0, 15),
+                token_length: token.length,
+                token_prefix: token.substring(0, 10),
+                node_env: process.env.NODE_ENV
+            }
         }, { status: 400 });
     }
 }
