@@ -2,52 +2,62 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function GET() {
+    // 1. Obtener credenciales crudas
+    const u_raw = process.env.TURSO_DATABASE_URL || "";
+    const t_raw = process.env.TURSO_AUTH_TOKEN || "";
+
+    // 2. Limpieza Ultra-Violenta idéntica a la que hacemos en db.ts
+    let u = u_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+    u = u.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
+    if (u.includes('?')) u = u.split('?')[0];
+    while (u.endsWith('/')) u = u.slice(0, -1);
+    if (u.startsWith("libsql://")) u = u.replace("libsql://", "https://");
+
+    let t = t_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+    t = t.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
+    if (t.toLowerCase().startsWith("bearer ")) t = t.substring(7).trim();
+
+    const fetch_url = `${u}/v2/pipeline`;
+    let raw_response = null;
+    let raw_status = 0;
+
     try {
-        const db = await getDb();
-        const test = await db.all("SELECT 1 as connection_test");
-        return NextResponse.json({
-            status: "success",
-            message: "Conexión a base de datos exitosa",
-            data: test
+        // Intentamos una petición cruda al protocolo de Turso
+        const res = await fetch(fetch_url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${t}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                requests: [
+                    { type: 'execute', stmt: { sql: 'SELECT 1' } },
+                    { type: 'close' }
+                ]
+            })
         });
-    } catch (error: any) {
-        const u_raw = process.env.TURSO_DATABASE_URL || "";
-        const t_raw = process.env.TURSO_AUTH_TOKEN || "";
 
-        // Simulamos la limpieza para reporte
-        let u_clean = u_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
-        u_clean = u_clean.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
-        if (u_clean.includes('?')) u_clean = u_clean.split('?')[0];
-        while (u_clean.endsWith('/')) u_clean = u_clean.slice(0, -1);
-
-        const final_u = u_clean.replace("libsql://", "https://");
-
-        let t_clean = t_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
-        t_clean = t_clean.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
+        raw_status = res.status;
+        raw_response = await res.text();
 
         return NextResponse.json({
-            status: "error",
-            message: error?.message || 'Error desconocido',
+            status: raw_status === 200 ? "success" : "error",
+            http_status_code: raw_status,
+            turso_raw_body: raw_response,
             diagnosis: {
-                original_url: {
-                    len: u_raw.length,
-                    start: u_raw.substring(0, 15),
-                    end: u_raw.substring(u_raw.length - 10)
-                },
-                cleaned_url: {
-                    len: final_u.length,
-                    start: final_u.substring(0, 15),
-                    end: final_u.substring(final_u.length - 10),
-                    has_escaped_newlines: u_raw.includes('\\n') || u_raw.includes('\\r')
-                },
-                token: {
-                    original_len: t_raw.length,
-                    cleaned_len: t_clean.length,
-                    has_escaped_newlines: t_raw.includes('\\n') || t_raw.includes('\\r'),
-                    end_raw_json: JSON.stringify(t_raw.substring(t_raw.length - 5))
-                },
-                node_env: process.env.NODE_ENV
+                endpoint_used: fetch_url,
+                token_len: t.length,
+                original_u_len: u_raw.length
             }
-        }, { status: 400 });
+        });
+
+    } catch (e: any) {
+        return NextResponse.json({
+            status: "fatal_error",
+            error: e.message,
+            diagnosis: {
+                attempted_url: fetch_url
+            }
+        }, { status: 500 });
     }
 }
