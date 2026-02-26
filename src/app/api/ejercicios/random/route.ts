@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         // Sólo trae ejercicios activos y ordenados al azar
         const ejercicios = await db.all(`
       SELECT id, enunciado_incorrecto, opciones, conector_correcto, explicacion 
-      FROM ejercicios 
+      FROM ejercicios_n2 
       WHERE es_activo = 1 
       ORDER BY RANDOM() 
       LIMIT ?

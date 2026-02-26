@@ -66,9 +66,9 @@ const EJERCICIOS_INICIALES = [
 async function setup() {
     const db = await getDb();
 
-    console.log('Creando tabla ejercicios...');
+    console.log('Creando tabla ejercicios_n2...');
     await db.run(`
-    CREATE TABLE IF NOT EXISTS ejercicios (
+    CREATE TABLE IF NOT EXISTS ejercicios_n2 (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       enunciado_incorrecto TEXT NOT NULL,
       opciones TEXT NOT NULL,
@@ -79,12 +79,12 @@ async function setup() {
     );
   `);
 
-    const countQuery = await db.get('SELECT COUNT(*) as count FROM ejercicios');
+    const countQuery = await db.get('SELECT COUNT(*) as count FROM ejercicios_n2');
 
     if (countQuery && Number(countQuery.count) === 0) {
         console.log('Poblando base de datos con ejercicios iniciales...');
         const insertStatement = await db.prepare(
-            'INSERT INTO ejercicios (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)'
+            'INSERT INTO ejercicios_n2 (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)'
         );
 
         for (const ejercicio of EJERCICIOS_INICIALES) {

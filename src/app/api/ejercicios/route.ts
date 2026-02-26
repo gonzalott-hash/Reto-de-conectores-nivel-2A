@@ -5,7 +5,7 @@ export async function GET() {
     try {
         const db = await getDb();
         // Return all exercises for the admin panel (including inactive ones)
-        const ejercicios = await db.all('SELECT * FROM ejercicios ORDER BY creado_en DESC');
+        const ejercicios = await db.all('SELECT * FROM ejercicios_n2 ORDER BY creado_en DESC');
 
         // Parse the JSON string options back to arrays
         const parsedEjercicios = ejercicios.map(e => ({
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         const db = await getDb();
 
         const result = await db.run(
-            `INSERT INTO ejercicios (enunciado_incorrecto, opciones, conector_correcto, explicacion, es_activo) 
+            `INSERT INTO ejercicios_n2 (enunciado_incorrecto, opciones, conector_correcto, explicacion, es_activo) 
        VALUES (?, ?, ?, ?, ?)`,
             [enunciado_incorrecto, JSON.stringify(opciones), conector_correcto, explicacion, es_activo]
         );

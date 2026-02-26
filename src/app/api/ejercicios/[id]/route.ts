@@ -16,7 +16,7 @@ export async function PUT(request: Request, props: { params: Promise<{ id: strin
 
         // Update the record
         await db.run(
-            `UPDATE ejercicios SET 
+            `UPDATE ejercicios_n2 SET 
         enunciado_incorrecto = ?, 
         opciones = ?, 
         conector_correcto = ?, 
@@ -44,7 +44,7 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
         const { id } = params;
         const db = await getDb();
 
-        await db.run('DELETE FROM ejercicios WHERE id = ?', [id]);
+        await db.run('DELETE FROM ejercicios_n2 WHERE id = ?', [id]);
 
         return NextResponse.json(
             { message: 'Ejercicio eliminado exitosamente' },

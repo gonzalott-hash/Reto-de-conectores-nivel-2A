@@ -8,20 +8,20 @@ dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 async function importEjercicios() {
     const filePath = path.join(process.cwd(), '21 ejercicios conectores n2.txt');
     const content = fs.readFileSync(filePath, 'utf-8');
-    
+
     const lines = content.split('\n').map(l => l.trim());
-    
+
     let currentEnunciado = "";
     let currentOptions: string[] = [];
     let currentAnswer = "";
-    
+
     const db = await getDb();
     let count = 0;
-    
+
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        
-        if (line.match(/_{2,}/)) { 
+
+        if (line.match(/_{2,}/)) {
             // Save previous if exists
             if (currentEnunciado && currentOptions.length > 0 && currentAnswer) {
                 await saveEjercicio(db, currentEnunciado, currentOptions, currentAnswer);
@@ -40,20 +40,20 @@ async function importEjercicios() {
             currentOptions.push(optionText);
         }
     }
-    
+
     // Save last one
     if (currentEnunciado && currentOptions.length > 0 && currentAnswer) {
         await saveEjercicio(db, currentEnunciado, currentOptions, currentAnswer);
         count++;
     }
-    
+
     console.log(`Importados ${count} ejercicios exitosamente.`);
 }
 
 async function saveEjercicio(db: any, enunciado: string, opciones: string[], correcto: string) {
     try {
         await db.run(
-            "INSERT INTO ejercicios (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)",
+            "INSERT INTO ejercicios_n2 (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)",
             [enunciado, JSON.stringify(opciones), correcto, ""]
         );
     } catch (e) {

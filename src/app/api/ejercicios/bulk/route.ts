@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         const db = await getDb();
 
         const stmt = await db.prepare(`
-            INSERT INTO ejercicios (enunciado_incorrecto, opciones, conector_correcto, explicacion)
+            INSERT INTO ejercicios_n2 (enunciado_incorrecto, opciones, conector_correcto, explicacion)
             VALUES (?, ?, ?, ?)
         `);
 

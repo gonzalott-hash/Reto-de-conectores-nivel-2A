@@ -53,7 +53,7 @@ export async function getDb(): Promise<DbWrapper> {
 
     // Initial table creations if they dont exist
     await wrapperInstance.run(`
-        CREATE TABLE IF NOT EXISTS ejercicios (
+        CREATE TABLE IF NOT EXISTS ejercicios_n2 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             enunciado_incorrecto TEXT NOT NULL,
             opciones TEXT NOT NULL,
