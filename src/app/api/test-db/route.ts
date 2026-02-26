@@ -15,11 +15,15 @@ export async function GET() {
         const t_raw = process.env.TURSO_AUTH_TOKEN || "";
 
         // Simulamos la limpieza para reporte
-        let u_clean = u_raw.trim().replace(/["']/g, "").replace(/\s/g, "");
+        let u_clean = u_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+        u_clean = u_clean.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
         if (u_clean.includes('?')) u_clean = u_clean.split('?')[0];
-        if (u_clean.endsWith('/')) u_clean = u_clean.slice(0, -1);
-        const protocol_fix = u_clean.startsWith("libsql://") ? "SÍ" : "NO";
+        while (u_clean.endsWith('/')) u_clean = u_clean.slice(0, -1);
+
         const final_u = u_clean.replace("libsql://", "https://");
+
+        let t_clean = t_raw.trim().replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+        t_clean = t_clean.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
 
         return NextResponse.json({
             status: "error",
@@ -34,15 +38,14 @@ export async function GET() {
                     len: final_u.length,
                     start: final_u.substring(0, 15),
                     end: final_u.substring(final_u.length - 10),
-                    has_query: u_raw.includes('?'),
-                    has_slash_end: u_raw.trim().endsWith('/')
+                    has_escaped_newlines: u_raw.includes('\\n') || u_raw.includes('\\r')
                 },
                 token: {
-                    len: t_raw.length,
-                    start: t_raw.substring(0, 10),
-                    end: t_raw.substring(t_raw.length - 5)
+                    original_len: t_raw.length,
+                    cleaned_len: t_clean.length,
+                    has_escaped_newlines: t_raw.includes('\\n') || t_raw.includes('\\r'),
+                    end_raw_json: JSON.stringify(t_raw.substring(t_raw.length - 5))
                 },
-                protocol_converted: protocol_fix,
                 node_env: process.env.NODE_ENV
             }
         }, { status: 400 });

@@ -59,21 +59,27 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
-    // Limpieza Quirúrgica de credenciales
-    let u = (process.env.TURSO_DATABASE_URL || "").trim().replace(/["']/g, "");
-    let t = (process.env.TURSO_AUTH_TOKEN || "").trim().replace(/["']/g, "");
+    // Limpieza ULTRA-VIOLENTA de credenciales
+    let u = (process.env.TURSO_DATABASE_URL || "").trim();
+    let t = (process.env.TURSO_AUTH_TOKEN || "").trim();
 
-    // 1. Eliminar prefijos y sufijos accidentales del token
+    // 1. Quitar comillas, espacios y caracteres no imprimibles (limpieza de basura invisible)
+    u = u.replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+    t = t.replace(/["']/g, "").replace(/\s/g, "").replace(/[^\x20-\x7E]/g, "");
+
+    // 2. Quitar secuencias literales de escape que el usuario haya podido pegar ( \n, \r, etc )
+    // Esto es vital porque el diagnóstico detectó "\n" literales al final del token
+    u = u.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
+    t = t.replace(/\\n/g, "").replace(/\\r/g, "").replace(/\\t/g, "");
+
+    // 3. Quitar prefijo "Bearer " si existe
     if (t.toLowerCase().startsWith("bearer ")) t = t.substring(7).trim();
-    t = t.replace(/\s/g, "");
 
-    // 2. Limpieza profunda de la URL
-    u = u.replace(/\s/g, "");
-    // Quitamos cualquier barra final o parámetros de consulta accidentales
+    // 4. Limpieza de URL (barras finales y parámetros)
     if (u.includes('?')) u = u.split('?')[0];
-    if (u.endsWith('/')) u = u.slice(0, -1);
+    while (u.endsWith('/')) u = u.slice(0, -1);
 
-    // 3. Normalizar protocolo (CRÍTICO para Vercel: usar https en lugar de libsql)
+    // 5. Normalizar protocolo a HTTPS (CRÍTICO para estabilidad en Vercel)
     if (u.startsWith("libsql://")) {
         u = u.replace("libsql://", "https://");
     }
