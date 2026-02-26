@@ -22,10 +22,14 @@ export async function GET(request: Request) {
 
         const parsedEjercicios = ejercicios.map(e => {
             const opcionesArr: string[] = JSON.parse(String(e.opciones));
-            // Shuffle opciones
-            for (let i = opcionesArr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [opcionesArr[i], opcionesArr[j]] = [opcionesArr[j], opcionesArr[i]];
+
+            // Shuffle robusto de opciones (Fisher-Yates)
+            // Hacemos múltiples pasadas para asegurar mezcla extrema si fuera necesario
+            for (let pass = 0; pass < 2; pass++) {
+                for (let i = opcionesArr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opcionesArr[i], opcionesArr[j]] = [opcionesArr[j], opcionesArr[i]];
+                }
             }
             return {
                 ...e,

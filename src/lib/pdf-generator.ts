@@ -59,40 +59,58 @@ export const generarPDFResultados = ({
             if (!ejercicio) return;
 
             // Ensure we don't go out of bounds on Y
-            if (cursorY > 260) {
+            if (cursorY > 240) {
                 doc.addPage();
                 cursorY = 20;
             }
 
             doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(37, 99, 235);
+            doc.text(`Ejercicio ${index + 1}:`, 20, cursorY);
+            cursorY += 7;
 
-            // Formateo estricto del requerimiento
-            doc.setTextColor(71, 85, 105); // Slate 600 para el texto base
-            doc.text(`En el ejercicio ${index + 1} pusiste: `, 20, cursorY);
+            // Reconstrucción del enunciado con la respuesta del usuario (Incorrecto)
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(71, 85, 105);
+            doc.text("Tu respuesta (incorrecta):", 20, cursorY);
+            cursorY += 6;
 
             doc.setTextColor(220, 38, 38); // Rojo
-            doc.text(`"${error.respuestaSeleccionada}"`, 80, cursorY);
+            doc.setFont("helvetica", "italic");
+            const fraseUsuario = ejercicio.enunciado_incorrecto.replace(/_{2,}/, `[ ${error.respuestaSeleccionada.toUpperCase()} ]`);
+            const splitFraseUsuario = doc.splitTextToSize(fraseUsuario, pageWidth - 40);
+            doc.text(splitFraseUsuario, 20, cursorY);
+            cursorY += (splitFraseUsuario.length * 5) + 4;
 
-            cursorY += 8;
-
+            // Reconstrucción del enunciado con la respuesta correcta (Correcto)
+            doc.setFont("helvetica", "normal");
             doc.setTextColor(71, 85, 105);
-            doc.text("Debiste poner: ", 20, cursorY);
+            doc.text("Forma correcta:", 20, cursorY);
+            cursorY += 6;
 
             doc.setTextColor(22, 163, 74); // Verde
-            doc.text(`"${ejercicio.conector_correcto}"`, 55, cursorY);
+            doc.setFont("helvetica", "bold");
+            const fraseCorrecta = ejercicio.enunciado_incorrecto.replace(/_{2,}/, `[ ${ejercicio.conector_correcto.toUpperCase()} ]`);
+            const splitFraseCorrecta = doc.splitTextToSize(fraseCorrecta, pageWidth - 40);
+            doc.text(splitFraseCorrecta, 20, cursorY);
+            cursorY += (splitFraseCorrecta.length * 5) + 6;
 
-            cursorY += 10;
-
-            // Explicación (wrap text)
-            doc.setTextColor(100, 116, 139); // Slate 500
-            doc.setFontSize(10);
-            const splitExplicacion = doc.splitTextToSize(`Nota pedagógica: ${ejercicio.explicacion}`, pageWidth - 40);
-            doc.text(splitExplicacion, 20, cursorY);
-
-            cursorY += (splitExplicacion.length * 5) + 8;
+            // Explicación
+            if (ejercicio.explicacion) {
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(100, 116, 139); // Slate 500
+                doc.setFontSize(10);
+                const splitExplicacion = doc.splitTextToSize(`Nota pedagógica: ${ejercicio.explicacion}`, pageWidth - 40);
+                doc.text(splitExplicacion, 20, cursorY);
+                cursorY += (splitExplicacion.length * 5) + 10;
+            } else {
+                cursorY += 4;
+            }
 
             doc.setDrawColor(241, 245, 249); // slate 100
-            doc.line(20, cursorY - 4, pageWidth - 20, cursorY - 4);
+            doc.line(20, cursorY - 5, pageWidth - 20, cursorY - 5);
+            cursorY += 5;
         });
     }
 
