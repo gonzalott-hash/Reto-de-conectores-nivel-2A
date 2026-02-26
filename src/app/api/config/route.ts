@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 export async function GET() {
     try {
         const db = await getDb();
-        const configParams = await db.all("SELECT * FROM configuracion");
+        const configParams = await db.all("SELECT * FROM config_n2");
 
         const confObj: Record<string, string> = {};
         for (const item of configParams) {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         for (const key of Object.keys(body)) {
             const val = body[key].toString();
             await db.run(
-                `INSERT INTO configuracion (clave, valor) VALUES (?, ?) 
+                `INSERT INTO config_n2 (clave, valor) VALUES (?, ?) 
                  ON CONFLICT(clave) DO UPDATE SET valor=excluded.valor`,
                 [key, val]
             );

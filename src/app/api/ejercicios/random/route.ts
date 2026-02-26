@@ -7,7 +7,7 @@ export async function GET(request: Request) {
         const db = await getDb();
 
         // Obtener limite dinámico
-        const paramRow = await db.get("SELECT valor FROM configuracion WHERE clave = 'num_ejercicios'");
+        const paramRow = await db.get("SELECT valor FROM config_n2 WHERE clave = 'num_ejercicios'");
         const dbLimit = paramRow && paramRow.valor ? parseInt(String(paramRow.valor), 10) : null;
         const limitNum = dbLimit || parseInt(searchParams.get('limit') || '10', 10);
 

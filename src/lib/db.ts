@@ -61,8 +61,13 @@ export async function getDb(): Promise<DbWrapper> {
     }
 
     // Limpieza de URL y Token (eliminamos cualquier espacio, tabulación o salto de línea)
-    const currentUrl = process.env.TURSO_DATABASE_URL?.replace(/\s/g, '').trim();
+    let currentUrl = process.env.TURSO_DATABASE_URL?.replace(/\s/g, '').trim();
     const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s/g, '').trim();
+
+    // Forzar HTTPS para mayor compatibilidad con entornos serverless
+    if (currentUrl?.startsWith('libsql://')) {
+        currentUrl = currentUrl.replace('libsql://', 'https://');
+    }
 
     if (process.env.NODE_ENV === 'production') {
         if (!currentUrl || !currentToken) {
@@ -91,14 +96,14 @@ export async function getDb(): Promise<DbWrapper> {
     `);
 
     await wrapperInstance.run(`
-        CREATE TABLE IF NOT EXISTS configuracion (
+        CREATE TABLE IF NOT EXISTS config_n2 (
             clave TEXT PRIMARY KEY,
             valor TEXT NOT NULL
         )
     `);
 
     await wrapperInstance.run(`
-        INSERT OR IGNORE INTO configuracion (clave, valor) VALUES ('num_ejercicios', '10')
+        INSERT OR IGNORE INTO config_n2 (clave, valor) VALUES ('num_ejercicios', '10')
     `);
 
     return wrapperInstance;
