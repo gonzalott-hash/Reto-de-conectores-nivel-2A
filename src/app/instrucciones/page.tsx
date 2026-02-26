@@ -48,8 +48,9 @@ export default function Instrucciones() {
                 } else {
                     setEjercicios(data);
                 }
-            } catch {
-                setError("Error de red al cargar el reto.");
+            } catch (err: any) {
+                console.error("Error detallado:", err);
+                setError(`Error al cargar el reto: ${err.message || 'Error de conexión'}. Verifica las variables de entorno en Vercel.`);
             } finally {
                 setLoading(false);
             }

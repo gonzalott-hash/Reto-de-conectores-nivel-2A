@@ -7,8 +7,8 @@ async function test() {
         const db = await getDb();
         console.log("Tablas creadas/verificadas");
 
-        console.log("Insertando ejercicio de prueba...");
-        const res = await db.run("INSERT INTO ejercicios (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)", [
+        console.log("Insertando ejercicio de prueba en ejercicios_n2...");
+        const res = await db.run("INSERT INTO ejercicios_n2 (enunciado_incorrecto, opciones, conector_correcto, explicacion) VALUES (?, ?, ?, ?)", [
             "El carro es rojo __ es rápido.",
             JSON.stringify(["y", "o", "pero"]),
             "y",
@@ -20,8 +20,8 @@ async function test() {
         const config = await db.all("SELECT * FROM configuracion");
         console.log("Config:", config);
 
-        console.log("Consultando ejercicios...");
-        const rows = await db.all("SELECT * FROM ejercicios");
+        console.log("Consultando ejercicios_n2...");
+        const rows = await db.all("SELECT * FROM ejercicios_n2");
         console.log("Ejercicios:", rows);
 
         console.log("Test exitoso");
