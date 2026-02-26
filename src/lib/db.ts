@@ -49,9 +49,10 @@ export async function getDb(): Promise<DbWrapper> {
     const currentUrl = process.env.TURSO_DATABASE_URL;
     const currentToken = process.env.TURSO_AUTH_TOKEN;
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' || !currentUrl) {
         if (!currentUrl || !currentToken) {
-            throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN). Verifica la configuración de Vercel.");
+            const allKeys = Object.keys(process.env).filter(k => !k.includes('TOKEN') && !k.includes('PASSWORD') && !k.includes('SECRET'));
+            throw new Error(`Variables faltantes. Disponibles: ${allKeys.join(', ')}. Verifica TURSO_DATABASE_URL y TURSO_AUTH_TOKEN en Vercel.`);
         }
     }
 
