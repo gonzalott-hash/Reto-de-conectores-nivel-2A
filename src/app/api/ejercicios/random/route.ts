@@ -34,8 +34,8 @@ export async function GET(request: Request) {
         });
 
         return NextResponse.json(parsedEjercicios);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching random ejercicios:", error);
-        return NextResponse.json({ error: 'Failed to fetch ejercicios' }, { status: 500 });
+        return NextResponse.json({ error: error?.message || 'Failed to fetch ejercicios' }, { status: 500 });
     }
 }

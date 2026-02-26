@@ -1,7 +1,15 @@
 import { createClient, Client } from "@libsql/client";
 
-const url = process.env.TURSO_DATABASE_URL || "file:./sqlite.db";
+const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
+
+if (process.env.NODE_ENV === 'production') {
+    if (!url || !authToken) {
+        throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN). Verifica la configuración de Vercel.");
+    }
+}
+
+const safeUrl = url || "file:./sqlite.db";
 
 let clientInstance: Client | null = null;
 
@@ -45,8 +53,8 @@ export async function getDb(): Promise<DbWrapper> {
     }
 
     clientInstance = createClient({
-        url,
-        authToken,
+        url: safeUrl,
+        authToken: authToken,
     });
 
     wrapperInstance = new DbWrapper(clientInstance);

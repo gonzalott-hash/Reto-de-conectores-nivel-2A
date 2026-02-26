@@ -39,7 +39,10 @@ export default function Instrucciones() {
                 setNumEjercicios(limit);
 
                 const res = await fetch(`/api/ejercicios/random?limit=${limit}`);
-                if (!res.ok) throw new Error("Error cargando ejercicios");
+                if (!res.ok) {
+                    const errorBody = await res.json();
+                    throw new Error(errorBody.error || "Error cargando ejercicios");
+                }
 
                 const data = await res.json();
 
