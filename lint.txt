@@ -1,0 +1,56 @@
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\admin\login\page.tsx[24m[0m
+[0m  [2m34:18[22m  [33mwarning[39m  'err' is defined but never used                                                                                                                        [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m86:29[22m  [31merror[39m    Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  [2m@next/next/no-html-link-for-pages[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\admin\page.tsx[24m[0m
+[0m    [2m5:103[22m  [33mwarning[39m  'BookOpen' is defined but never used                             [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m    [2m5:113[22m  [33mwarning[39m  'List' is defined but never used                                 [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m402:117[22m  [31merror[39m    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  [2mreact/no-unescaped-entities[22m[0m
+[0m  [2m402:128[22m  [31merror[39m    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  [2mreact/no-unescaped-entities[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\api\admin\verify\route.ts[24m[0m
+[0m  [2m21:14[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\api\config\route.ts[24m[0m
+[0m  [2m9:13[22m  [31merror[39m  'confObj' is never reassigned. Use 'const' instead  [2mprefer-const[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\api\ejercicios\[id]\route.ts[24m[0m
+[0m   [2m4:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m38:57[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\api\ejercicios\random\route.ts[24m[0m
+[0m  [2m24:17[22m  [31merror[39m  'opcionesArr' is never reassigned. Use 'const' instead  [2mprefer-const[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\instrucciones\page.tsx[24m[0m
+[0m  [2m51:22[22m  [33mwarning[39m  'err' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[4mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\reto\page.tsx[24m[0m
+[0m  [2m20:54[22m  [31merror[39m  Error: Cannot call impure function during render[0m
+[0m[0m
+[0m`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).[0m
+[0m[0m
+[0mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\reto\page.tsx:20:54[0m
+[0m  18 |     } = useGameStore();[0m
+[0m  19 |[0m
+[0m> 20 |     const [tiempoInicio, setTiempoInicio] = useState(Date.now());[0m
+[0m     |                                                      ^^^^^^^^^^ Cannot call impure function[0m
+[0m  21 |[0m
+[0m  22 |     useEffect(() => {[0m
+[0m  23 |         if (ejercicios.length === 0) {                                            [2mreact-hooks/purity[22m[0m
+[0m  [2m54:42[22m  [31merror[39m  Error: Cannot call impure function during render[0m
+[0m[0m
+[0m`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).[0m
+[0m[0m
+[0mE:\Proyectos Antigravity\Reto de conectores nivel 1A\src\app\reto\page.tsx:54:42[0m
+[0m  52 |[0m
+[0m  53 |     const handleResponder = (respuesta: string) => {[0m
+[0m> 54 |         const tiempoTomado = Math.round((Date.now() - tiempoInicio) / 1000);[0m
+[0m     |                                          ^^^^^^^^^^ Cannot call impure function[0m
+[0m  55 |[0m
+[0m  56 |         responderEjercicio({[0m
+[0m  57 |             ejercicioId: currentEjercicio.id,  [2mreact-hooks/purity[22m[0m
+[0m[0m
+[0m[31m[1m✖ 14 problems (9 errors, 5 warnings)[22m[39m[0m
+[0m[31m[1m[22m[39m[31m[1m  2 errors and 0 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[31m[1m[22m[39m[0m
