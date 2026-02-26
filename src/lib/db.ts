@@ -47,13 +47,12 @@ export async function getDb(): Promise<DbWrapper> {
     }
 
     const currentUrl = process.env.TURSO_DATABASE_URL;
-    const currentToken = process.env.TURSO_AUTH_TOKEN;
-    const projectName = process.env.VERCEL_PROJECT_NAME || 'Proyecto Desconocido';
+    // Limpiamos el token de espacios, saltos de línea o caracteres invisibles
+    const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s/g, '').trim();
 
-    if (process.env.NODE_ENV === 'production' || !currentUrl) {
+    if (process.env.NODE_ENV === 'production') {
         if (!currentUrl || !currentToken) {
-            const allKeys = Object.keys(process.env).filter(k => !k.includes('TOKEN') && !k.includes('PASSWORD') && !k.includes('SECRET'));
-            throw new Error(`Variables faltantes en el proyecto [${projectName}]. Disponibles: ${allKeys.join(', ')}. Verifica la configuración en Vercel.`);
+            throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN).");
         }
     }
 
