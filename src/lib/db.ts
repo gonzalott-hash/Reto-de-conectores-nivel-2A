@@ -13,16 +13,18 @@ class DbWrapper {
 
     private async query(sql: string, args: any[] = []) {
         try {
-            // Normalizamos la ejecución para usar siempre el formato de objeto.
-            // Algunos servidores de Turso pueden responder con 400 si el JSON del body es ambiguo.
+            // Turso recomienda usar el string directo si no hay argumentos para evitar 400 por JSON malformado
+            if (!args || args.length === 0) {
+                return await this.client.execute(sql.trim());
+            }
             return await this.client.execute({
                 sql: sql.trim(),
-                args: args || []
+                args: args
             });
         } catch (e: any) {
             const shortSql = sql.trim().substring(0, 100);
-            console.error(`DB_QUERY_ERROR: ${e.message} | SQL: ${shortSql}`);
-            throw new Error(`SQL_ERROR: ${e.message} (Consulta: ${shortSql}...)`);
+            // Capturamos el error para el diagnóstico
+            throw new Error(`SQL_ERROR: ${e.message} | SQL: ${shortSql}`);
         }
     }
 
@@ -57,42 +59,33 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
-    // Limpieza de credenciales
-    let currentUrl = (process.env.TURSO_DATABASE_URL || "").trim();
-    let currentToken = (process.env.TURSO_AUTH_TOKEN || "").trim();
+    // Limpieza Quirúrgica de credenciales
+    let u = (process.env.TURSO_DATABASE_URL || "").trim().replace(/["']/g, "");
+    let t = (process.env.TURSO_AUTH_TOKEN || "").trim().replace(/["']/g, "");
 
-    // 1. Eliminar comillas accidentales
-    currentUrl = currentUrl.replace(/["']/g, "");
-    currentToken = currentToken.replace(/["']/g, "");
+    // 1. Eliminar prefijos y sufijos accidentales
+    if (t.toLowerCase().startsWith("bearer ")) t = t.substring(7).trim();
 
-    // 2. Si el usuario pegó "Bearer " por error en Vercel, lo quitamos
-    if (currentToken.toLowerCase().startsWith("bearer ")) {
-        currentToken = currentToken.substring(7).trim();
-    }
+    // 2. Limpiar la URL de cualquier barra final o espacios internos
+    u = u.replace(/\s/g, "");
+    if (u.endsWith('/')) u = u.slice(0, -1);
 
-    // 3. Limpiar espacios y saltos de línea invisibles finales
-    currentUrl = currentUrl.replace(/\s/g, "");
-    currentToken = currentToken.replace(/\s/g, "");
-
-    // Normalizamos el protocolo a https para máxima estabilidad en funciones serverless
-    if (currentUrl.startsWith("libsql://")) {
-        currentUrl = currentUrl.replace("libsql://", "https://");
-    }
+    // 3. El token NO debe tener espacios internos
+    t = t.replace(/\s/g, "");
 
     if (process.env.NODE_ENV === 'production') {
-        if (!currentUrl || !currentToken) {
+        if (!u || !t) {
             throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN).");
         }
     }
 
     clientInstance = createClient({
-        url: currentUrl || "file:./sqlite.db",
-        authToken: currentToken,
+        url: u || "file:./sqlite.db",
+        authToken: u.startsWith("file:") ? "" : t,
     });
 
     const wrapper = new DbWrapper(clientInstance);
 
-    // Solo ejecutamos los DDLs si no se han hecho ya en esta instancia
     if (!global._db_initialized) {
         try {
             await wrapper.run("CREATE TABLE IF NOT EXISTS ejercicios_n2 (id INTEGER PRIMARY KEY AUTOINCREMENT, enunciado_incorrecto TEXT NOT NULL, opciones TEXT NOT NULL, conector_correcto TEXT NOT NULL, explicacion TEXT NOT NULL DEFAULT '', es_activo BOOLEAN NOT NULL DEFAULT 1, creado_en DATETIME DEFAULT CURRENT_TIMESTAMP)");
@@ -100,7 +93,7 @@ export async function getDb(): Promise<DbWrapper> {
             await wrapper.run("INSERT OR IGNORE INTO config_n2 (clave, valor) VALUES ('num_ejercicios', '10')");
             global._db_initialized = true;
         } catch (initError: any) {
-            console.error("Aviso: Error durante inicialización automática:", initError.message);
+            console.error("Aviso: Error de inicialización:", initError.message);
         }
     }
 
