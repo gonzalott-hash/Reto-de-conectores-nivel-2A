@@ -46,8 +46,8 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
-    const currentUrl = process.env.TURSO_DATABASE_URL;
-    // Limpiamos el token de espacios, saltos de línea o caracteres invisibles
+    // Limpiamos URL y Token de espacios, saltos de línea o caracteres invisibles
+    const currentUrl = process.env.TURSO_DATABASE_URL?.replace(/\s/g, '').trim();
     const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s/g, '').trim();
 
     if (process.env.NODE_ENV === 'production') {
