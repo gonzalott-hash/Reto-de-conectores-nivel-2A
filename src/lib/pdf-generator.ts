@@ -59,7 +59,7 @@ export const generarPDFResultados = ({
             if (!ejercicio) return;
 
             // Ensure we don't go out of bounds on Y
-            if (cursorY > 240) {
+            if (cursorY > 230) {
                 doc.addPage();
                 cursorY = 20;
             }
@@ -68,33 +68,60 @@ export const generarPDFResultados = ({
             doc.setFont("helvetica", "bold");
             doc.setTextColor(37, 99, 235);
             doc.text(`Ejercicio ${index + 1}:`, 20, cursorY);
-            cursorY += 7;
+            cursorY += 8;
 
-            // Reconstrucción del enunciado con la respuesta del usuario (Incorrecto)
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(71, 85, 105);
-            doc.text("Tu respuesta (incorrecta):", 20, cursorY);
-            cursorY += 6;
+            const renderFraseConResaltado = (label: string, conector: string, color: [number, number, number], isBold: boolean) => {
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(71, 85, 105);
+                doc.text(label, 20, cursorY);
+                cursorY += 6;
 
-            doc.setTextColor(220, 38, 38); // Rojo
-            doc.setFont("helvetica", "italic");
-            const fraseUsuario = ejercicio.enunciado_incorrecto.replace(/_{2,}/, `[ ${error.respuestaSeleccionada.toUpperCase()} ]`);
-            const splitFraseUsuario = doc.splitTextToSize(fraseUsuario, pageWidth - 40);
-            doc.text(splitFraseUsuario, 20, cursorY);
-            cursorY += (splitFraseUsuario.length * 5) + 4;
+                const partes = ejercicio.enunciado_incorrecto.split(/_{2,}/);
+                const firstPart = partes[0] || "";
+                const secondPart = partes[1] || "";
+                const conectorFormateado = ` ${conector.toUpperCase()} `;
 
-            // Reconstrucción del enunciado con la respuesta correcta (Correcto)
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(71, 85, 105);
-            doc.text("Forma correcta:", 20, cursorY);
-            cursorY += 6;
+                // Renderizado por partes para colores dinámicos
+                let currentX = 20;
 
-            doc.setTextColor(22, 163, 74); // Verde
-            doc.setFont("helvetica", "bold");
-            const fraseCorrecta = ejercicio.enunciado_incorrecto.replace(/_{2,}/, `[ ${ejercicio.conector_correcto.toUpperCase()} ]`);
-            const splitFraseCorrecta = doc.splitTextToSize(fraseCorrecta, pageWidth - 40);
-            doc.text(splitFraseCorrecta, 20, cursorY);
-            cursorY += (splitFraseCorrecta.length * 5) + 6;
+                // Texto antes del conector
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(71, 85, 105);
+                const splitFirst = doc.splitTextToSize(firstPart, pageWidth - 40);
+
+                // Si la primera parte es multilínea, imprimimos todas menos la última normalmente
+                if (splitFirst.length > 1) {
+                    for (let i = 0; i < splitFirst.length - 1; i++) {
+                        doc.text(splitFirst[i], 20, cursorY);
+                        cursorY += 5;
+                    }
+                }
+
+                // La última línea de la primera parte (o la única) se imprime y se guarda su ancho
+                const lastLineFirstPart = splitFirst[splitFirst.length - 1];
+                doc.text(lastLineFirstPart, 20, cursorY);
+                currentX += doc.getTextWidth(lastLineFirstPart);
+
+                // El conector con su color y estilo
+                doc.setTextColor(color[0], color[1], color[2]);
+                if (isBold) doc.setFont("helvetica", "bold");
+                else doc.setFont("helvetica", "bolditalic");
+                doc.text(conectorFormateado, currentX, cursorY);
+                currentX += doc.getTextWidth(conectorFormateado);
+
+                // El resto de la frase después del conector
+                doc.setTextColor(71, 85, 105);
+                doc.setFont("helvetica", "normal");
+                doc.text(secondPart, currentX, cursorY);
+
+                cursorY += 10;
+            };
+
+            // 1. Renderizar Tu respuesta (Error en Rojo)
+            renderFraseConResaltado("Tu respuesta (incorrecta):", error.respuestaSeleccionada, [220, 38, 38], false);
+
+            // 2. Renderizar Forma correcta (Acierto en Verde)
+            renderFraseConResaltado("Forma correcta:", ejercicio.conector_correcto, [22, 163, 74], true);
 
             // Explicación
             if (ejercicio.explicacion) {
@@ -103,9 +130,9 @@ export const generarPDFResultados = ({
                 doc.setFontSize(10);
                 const splitExplicacion = doc.splitTextToSize(`Nota pedagógica: ${ejercicio.explicacion}`, pageWidth - 40);
                 doc.text(splitExplicacion, 20, cursorY);
-                cursorY += (splitExplicacion.length * 5) + 10;
+                cursorY += (splitExplicacion.length * 5) + 12;
             } else {
-                cursorY += 4;
+                cursorY += 6;
             }
 
             doc.setDrawColor(241, 245, 249); // slate 100
