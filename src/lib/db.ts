@@ -14,22 +14,36 @@ class DbWrapper {
     }
 
     async all(sql: string, args: any[] = []) {
-        const res = await this.client.execute({ sql, args });
-        return res.rows;
+        try {
+            const res = await this.client.execute({ sql, args });
+            return res.rows;
+        } catch (e: any) {
+            console.error(`Error SQL en all: ${sql}`, e);
+            throw new Error(`SQL_ERROR en all: ${e.message} (SQL: ${sql.substring(0, 50)}...)`);
+        }
     }
 
     async get(sql: string, args: any[] = []) {
-        const res = await this.client.execute({ sql, args });
-        return res.rows[0];
+        try {
+            const res = await this.client.execute({ sql, args });
+            return res.rows[0];
+        } catch (e: any) {
+            console.error(`Error SQL en get: ${sql}`, e);
+            throw new Error(`SQL_ERROR en get: ${e.message} (SQL: ${sql.substring(0, 50)}...)`);
+        }
     }
 
     async run(sql: string, args: any[] = []) {
-        const res = await this.client.execute({ sql, args });
-        return { lastID: res.lastInsertRowid?.toString() || 0, changes: res.rowsAffected };
+        try {
+            const res = await this.client.execute({ sql, args });
+            return { lastID: res.lastInsertRowid?.toString() || 0, changes: res.rowsAffected };
+        } catch (e: any) {
+            console.error(`Error SQL en run: ${sql}`, e);
+            throw new Error(`SQL_ERROR en run: ${e.message} (SQL: ${sql.substring(0, 50)}...)`);
+        }
     }
 
     async prepare(sql: string) {
-        // Just return a dummy statement that calls run
         return {
             run: async (...args: any[]) => {
                 return await this.run(sql, args);
@@ -46,15 +60,22 @@ export async function getDb(): Promise<DbWrapper> {
         return wrapperInstance;
     }
 
-    // Limpiamos URL y Token de espacios, saltos de línea o caracteres invisibles
-    const currentUrl = process.env.TURSO_DATABASE_URL?.replace(/\s/g, '').trim();
-    const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s/g, '').trim();
+    // Limpieza ULTRA agresiva de URL y Token (solo caracteres ASCII válidos para URLs y JWTs)
+    let currentUrl = process.env.TURSO_DATABASE_URL?.replace(/[^a-zA-Z0-9:/._-]/g, '').trim();
+    const currentToken = process.env.TURSO_AUTH_TOKEN?.replace(/[^a-zA-Z0-9._-]/g, '').trim();
+
+    // Convertir libsql:// a https:// si es necesario (más compatible con ambientes serverless)
+    if (currentUrl?.startsWith('libsql://')) {
+        currentUrl = currentUrl.replace('libsql://', 'https://');
+    }
 
     if (process.env.NODE_ENV === 'production') {
         if (!currentUrl || !currentToken) {
             throw new Error("Variables de base de datos faltantes (TURSO_DATABASE_URL o TURSO_AUTH_TOKEN).");
         }
     }
+
+    console.log("Conectando a:", currentUrl?.substring(0, 20) + "...");
 
     clientInstance = createClient({
         url: currentUrl || "file:./sqlite.db",
