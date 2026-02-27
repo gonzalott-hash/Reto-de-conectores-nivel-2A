@@ -187,6 +187,35 @@ export default function AdminPage() {
         }
     };
 
+    const handleDeleteAll = async () => {
+        const confirmFirst = confirm("¡PRECAUCIÓN! Estás a punto de borrar TODO el banco de ejercicios. Esta acción no se puede deshacer.\n\n¿Realmente deseas borrar todos los ejercicios?");
+        if (!confirmFirst) return;
+
+        const confirmSecond = confirm("¿Estás ABSOLUTAMENTE seguro? Se perderán todos los datos del banco actual.");
+        if (!confirmSecond) return;
+
+        try {
+            setLoading(true);
+            const res = await fetch("/api/ejercicios/bulk", {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                alert(`¡Limpieza completada! Se han eliminado ${data.borrados} ejercicios.`);
+                fetchEjercicios();
+            } else {
+                const errData = await res.json();
+                alert(`Error al limpiar el banco: ${errData.message}`);
+            }
+        } catch (error) {
+            console.error("Error en el borrado masivo:", error);
+            alert("Error de conexión al intentar borrar los ejercicios.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-400">Cargando panel...</div>;
 
     const handleBulkImport = async () => {
@@ -456,7 +485,7 @@ export default function AdminPage() {
                             <h2 className="text-xl font-semibold text-slate-200">Banco de Datos</h2>
                         </div>
                     </div>
-                    <div className="flex space-x-3 w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0 shrink-0">
+                    <div className="flex flex-wrap gap-3 w-full lg:w-auto pb-1 lg:pb-0 shrink-0">
                         <button
                             onClick={() => setIsBulkModalOpen(true)}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-emerald-500/50"
@@ -464,7 +493,15 @@ export default function AdminPage() {
                             <Upload className="w-4 h-4 mr-2" />
                             Incorporación de nuevos ejercicios
                         </button>
+                        <button
+                            onClick={handleDeleteAll}
+                            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-red-500/50"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Vaciar todo el Banco
+                        </button>
                     </div>
+
                 </div>
 
                 <div className="p-4 border-b border-slate-700/50 flex bg-slate-800">

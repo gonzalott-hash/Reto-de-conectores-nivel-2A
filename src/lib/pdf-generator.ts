@@ -70,9 +70,19 @@ export const generarPDFResultados = ({
             doc.text(`Ejercicio ${index + 1}:`, 20, cursorY);
             cursorY += 8;
 
+            const checkPageBreak = (neededHeight: number) => {
+                if (cursorY + neededHeight > 275) {
+                    doc.addPage();
+                    cursorY = 20;
+                    return true;
+                }
+                return false;
+            };
+
             const renderFraseConResaltado = (label: string, conector: string, color: [number, number, number], isBold: boolean) => {
                 doc.setFont("helvetica", "normal");
                 doc.setTextColor(71, 85, 105);
+                checkPageBreak(15);
                 doc.text(label, 20, cursorY);
                 cursorY += 6;
 
@@ -81,41 +91,42 @@ export const generarPDFResultados = ({
                 const secondPart = partes[1] || "";
                 const conectorFormateado = ` ${conector.toUpperCase()} `;
 
-                // Renderizado por partes para colores dinámicos
-                let currentX = 20;
+                const margin = 20;
+                const maxWidth = pageWidth - (margin * 2);
+                let currentX = margin;
 
-                // Texto antes del conector
-                doc.setFont("helvetica", "normal");
-                doc.setTextColor(71, 85, 105);
-                const splitFirst = doc.splitTextToSize(firstPart, pageWidth - 40);
+                const renderSegment = (text: string, segmentColor: [number, number, number], segmentBold: boolean) => {
+                    doc.setTextColor(segmentColor[0], segmentColor[1], segmentColor[2]);
+                    doc.setFont("helvetica", segmentBold ? "bold" : "normal");
 
-                // Si la primera parte es multilínea, imprimimos todas menos la última normalmente
-                if (splitFirst.length > 1) {
-                    for (let i = 0; i < splitFirst.length - 1; i++) {
-                        doc.text(splitFirst[i], 20, cursorY);
-                        cursorY += 5;
+                    const words = text.split(" ");
+                    for (let i = 0; i < words.length; i++) {
+                        const word = words[i] + (i === words.length - 1 ? "" : " ");
+                        const wordWidth = doc.getTextWidth(word);
+
+                        if (currentX + wordWidth > pageWidth - margin) {
+                            cursorY += 6;
+                            currentX = margin;
+                            checkPageBreak(6);
+                        }
+
+                        doc.text(word, currentX, cursorY);
+                        currentX += wordWidth;
                     }
-                }
+                };
 
-                // La última línea de la primera parte (o la única) se imprime y se guarda su ancho
-                const lastLineFirstPart = splitFirst[splitFirst.length - 1];
-                doc.text(lastLineFirstPart, 20, cursorY);
-                currentX += doc.getTextWidth(lastLineFirstPart);
+                // 1. Parte Inicial
+                renderSegment(firstPart, [71, 85, 105], false);
 
-                // El conector con su color y estilo
-                doc.setTextColor(color[0], color[1], color[2]);
-                if (isBold) doc.setFont("helvetica", "bold");
-                else doc.setFont("helvetica", "bolditalic");
-                doc.text(conectorFormateado, currentX, cursorY);
-                currentX += doc.getTextWidth(conectorFormateado);
+                // 2. Conector resaltado
+                renderSegment(conectorFormateado, color, true);
 
-                // El resto de la frase después del conector
-                doc.setTextColor(71, 85, 105);
-                doc.setFont("helvetica", "normal");
-                doc.text(secondPart, currentX, cursorY);
+                // 3. Parte Final
+                renderSegment(secondPart, [71, 85, 105], false);
 
                 cursorY += 10;
             };
+
 
             // 1. Renderizar Tu respuesta (Error en Rojo)
             renderFraseConResaltado("Tu respuesta (incorrecta):", error.respuestaSeleccionada, [220, 38, 38], false);

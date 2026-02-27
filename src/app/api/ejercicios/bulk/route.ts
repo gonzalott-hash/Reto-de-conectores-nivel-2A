@@ -55,3 +55,29 @@ export async function POST(req: NextRequest) {
         }, { status: 500 });
     }
 }
+
+export async function DELETE() {
+    try {
+        const db = await getDb();
+        const result = await db.run('DELETE FROM ejercicios_n2');
+
+        // Intentar reiniciar el contador de autoincremento
+        try {
+            await db.run("DELETE FROM sqlite_sequence WHERE name='ejercicios_n2'");
+        } catch (e) {
+            // Ignorar si falla reinicio de secuencia (común en ciertos entornos remotos)
+        }
+
+        return NextResponse.json({
+            message: "Todos los ejercicios han sido eliminados correctamente",
+            borrados: result.changes
+        });
+    } catch (error: any) {
+        console.error("Error al borrar ejercicios masivamente:", error);
+        return NextResponse.json({
+            message: "Error al intentar borrar los ejercicios",
+            details: error?.message || String(error)
+        }, { status: 500 });
+    }
+}
+
