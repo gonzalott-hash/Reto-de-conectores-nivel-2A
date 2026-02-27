@@ -86,13 +86,14 @@ export const generarPDFResultados = ({
                 doc.text(label, 20, cursorY);
                 cursorY += 6;
 
-                const partes = ejercicio.enunciado_incorrecto.split(/_{2,}/);
-                const firstPart = partes[0] || "";
-                const secondPart = partes[1] || "";
-                const conectorFormateado = ` ${conector.toUpperCase()} `;
+                // Dividir el enunciado por los espacios en blanco (______)
+                const enunciadoPartes = ejercicio.enunciado_incorrecto.split(/_{2,}/);
+
+                // Dividir el conector en sus partes componentes
+                // Soporta separadores comunes como " - ", " – ", " — "
+                const conectorPartes = conector.split(/\s+[-–—]\s+/);
 
                 const margin = 20;
-                const maxWidth = pageWidth - (margin * 2);
                 let currentX = margin;
 
                 const renderSegment = (text: string, segmentColor: [number, number, number], segmentBold: boolean) => {
@@ -115,14 +116,20 @@ export const generarPDFResultados = ({
                     }
                 };
 
-                // 1. Parte Inicial
-                renderSegment(firstPart, [71, 85, 105], false);
+                // Intercalar partes del enunciado con partes del conector
+                for (let j = 0; j < enunciadoPartes.length; j++) {
+                    // Renderizar parte del enunciado
+                    if (enunciadoPartes[j]) {
+                        renderSegment(enunciadoPartes[j], [71, 85, 105], false);
+                    }
 
-                // 2. Conector resaltado
-                renderSegment(conectorFormateado, color, true);
-
-                // 3. Parte Final
-                renderSegment(secondPart, [71, 85, 105], false);
+                    // Renderizar conector correspondiente si existe
+                    if (j < enunciadoPartes.length - 1) {
+                        const conPart = conectorPartes[j] || "_______";
+                        const conText = ` ${conPart.trim().toUpperCase()} `;
+                        renderSegment(conText, color, true);
+                    }
+                }
 
                 cursorY += 10;
             };
