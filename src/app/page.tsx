@@ -27,8 +27,9 @@ export default function Home() {
               <BookOpen className="h-8 w-8 text-blue-400" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">
-            Reto de Conectores Lógicos Nivel 2
+          <h1 className="text-3xl font-bold text-slate-100 mb-2 leading-tight block">
+            Reto Conectores Lógicos <br />
+            Nivel 2
           </h1>
           <p className="text-slate-400 mb-8">
             Demuestra tu dominio sobre los conectores textuales y mejora tu redacción.
