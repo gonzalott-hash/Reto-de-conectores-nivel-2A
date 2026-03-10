@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Edit2, Trash2, LogOut, CheckCircle2, XCircle, Upload, Info, Download, LayoutDashboard, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Edit2, Trash2, LogOut, CheckCircle2, XCircle, Upload, Info, Download, LayoutDashboard, ChevronDown, ChevronRight, Clock } from "lucide-react";
 
 type Ejercicio = {
     id: number;
@@ -18,6 +18,7 @@ export default function AdminPage() {
     const [ejercicios, setEjercicios] = useState<Ejercicio[]>([]);
     const [loading, setLoading] = useState(true);
     const [numEjercicios, setNumEjercicios] = useState("10");
+    const [tiempoReto, setTiempoReto] = useState("10");
 
     // Form states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +53,9 @@ export default function AdminPage() {
                 const data = await res.json();
                 if (data.num_ejercicios) {
                     setNumEjercicios(data.num_ejercicios);
+                }
+                if (data.tiempo_reto) {
+                    setTiempoReto(data.tiempo_reto);
                 }
             }
         } catch (error) {
@@ -447,7 +451,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Dashboard Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg flex items-center">
                         <div className="bg-emerald-900/50 p-3 rounded-lg mr-4 border border-emerald-800/50">
                             <CheckCircle2 className="w-6 h-6 text-emerald-400" />
@@ -473,6 +477,24 @@ export default function AdminPage() {
                             </select>
                         </div>
                     </div>
+                    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg flex items-center">
+                        <div className="bg-blue-900/50 p-3 rounded-lg mr-4 border border-blue-800/50">
+                            <Clock className="w-6 h-6 text-blue-400" />
+                        </div>
+                        <div className="w-full">
+                            <p className="text-slate-400 pl-1 text-sm font-medium mb-1">Tiempo de Reto</p>
+                            <select
+                                className="w-full bg-slate-900/50 border border-slate-600 text-blue-400 text-sm font-semibold rounded-md px-3 py-1.5 outline-none cursor-pointer focus:ring-1 focus:ring-blue-500 [&>option]:bg-slate-800"
+                                value={tiempoReto}
+                                onChange={(e) => updateConfig("tiempo_reto", e.target.value)}
+                            >
+                                <option value="5">5 minutos</option>
+                                <option value="10">10 minutos</option>
+                                <option value="15">15 minutos</option>
+                                <option value="20">20 minutos</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -488,29 +510,28 @@ export default function AdminPage() {
                     <div className="flex flex-wrap gap-3 w-full lg:w-auto pb-1 lg:pb-0 shrink-0">
                         <button
                             onClick={() => setIsBulkModalOpen(true)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-emerald-500/50"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-emerald-500/50 text-sm font-medium"
                         >
                             <Upload className="w-4 h-4 mr-2" />
                             Incorporación de nuevos ejercicios
                         </button>
-                        <button
-                            onClick={handleDeleteAll}
-                            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-red-500/50"
-                        >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Vaciar todo el Banco
-                        </button>
                     </div>
-
                 </div>
 
-                <div className="p-4 border-b border-slate-700/50 flex bg-slate-800">
+                <div className="p-4 border-b border-slate-700/50 flex flex-wrap gap-3 bg-slate-800">
                     <button
                         onClick={handleDownloadDb}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-blue-500/50 text-sm font-medium"
                     >
                         <Download className="w-4 h-4 mr-2" />
                         Descargar Banco
+                    </button>
+                    <button
+                        onClick={handleDeleteAll}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-red-500/50 text-sm font-medium"
+                    >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar todo el Banco
                     </button>
                 </div>
 
