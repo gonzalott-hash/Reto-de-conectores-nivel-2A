@@ -496,108 +496,111 @@ export default function AdminPage() {
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Table Section */}
-            <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden mb-8">
-                <div className="p-6 border-b border-slate-700 lg:flex justify-between items-center space-y-4 lg:space-y-0">
-                    <div className="flex max-sm:flex-col sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setShowTable(!showTable)}>
-                        <div className="flex items-center">
-                            {showTable ? <ChevronDown className="w-5 h-5 text-slate-400 mr-2" /> : <ChevronRight className="w-5 h-5 text-slate-400 mr-2" />}
-                            <h2 className="text-xl font-semibold text-slate-200">Banco de Datos</h2>
+                {/* Table Section */}
+                <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden mb-8">
+
+                    <div className="p-6 border-b border-slate-700 lg:flex justify-between items-center space-y-4 lg:space-y-0">
+                        <div className="flex max-sm:flex-col sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setShowTable(!showTable)}>
+                            <div className="flex items-center">
+                                {showTable ? <ChevronDown className="w-5 h-5 text-slate-400 mr-2" /> : <ChevronRight className="w-5 h-5 text-slate-400 mr-2" />}
+                                <h2 className="text-xl font-semibold text-slate-200">Banco de Datos</h2>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-3 w-full lg:w-auto pb-1 lg:pb-0 shrink-0">
+                            <button
+                                onClick={() => setIsBulkModalOpen(true)}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-emerald-500/50 text-sm font-medium"
+                            >
+                                <Upload className="w-4 h-4 mr-2" />
+                                Incorporación de nuevos ejercicios
+                            </button>
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-3 w-full lg:w-auto pb-1 lg:pb-0 shrink-0">
+
+                    <div className="p-4 border-b border-slate-700/50 flex flex-wrap gap-3 bg-slate-800">
                         <button
-                            onClick={() => setIsBulkModalOpen(true)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-emerald-500/50 text-sm font-medium"
+                            onClick={handleDownloadDb}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-blue-500/50 text-sm font-medium"
                         >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Incorporación de nuevos ejercicios
+                            <Download className="w-4 h-4 mr-2" />
+                            Descargar Banco
+                        </button>
+                        <button
+                            onClick={handleDeleteAll}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-red-500/50 text-sm font-medium"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Eliminar todo el Banco
                         </button>
                     </div>
-                </div>
 
-                <div className="p-4 border-b border-slate-700/50 flex flex-wrap gap-3 bg-slate-800">
-                    <button
-                        onClick={handleDownloadDb}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-blue-500/50 text-sm font-medium"
-                    >
-                        <Download className="w-4 h-4 mr-2" />
-                        Descargar Banco
-                    </button>
-                    <button
-                        onClick={handleDeleteAll}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors shadow-sm ring-1 ring-red-500/50 text-sm font-medium"
-                    >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Eliminar todo el Banco
-                    </button>
-                </div>
-
-                {showTable && (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-slate-900/50 text-slate-300 font-medium border-b border-slate-700">
-                                <tr>
-                                    <th className="px-6 py-4">ID</th>
-                                    <th className="px-6 py-4 w-1/3">Enunciado</th>
-                                    <th className="px-6 py-4">Respuesta</th>
-                                    <th className="px-6 py-4">Estado</th>
-                                    <th className="px-6 py-4 text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-700/50 text-slate-300">
-                                {ejercicios.map((ej) => (
-                                    <tr key={ej.id} className="hover:bg-slate-700/30 transition-colors">
-                                        <td className="px-6 py-4 text-slate-500">#{ej.id}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="truncate w-64 md:w-96 text-slate-200" title={ej.enunciado_incorrecto}>
-                                                {ej.enunciado_incorrecto}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-emerald-400">
-                                            {ej.conector_correcto}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {ej.es_activo ? (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50">
-                                                    <CheckCircle2 className="w-3 h-3 mr-1" /> Activo
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-900/50 text-slate-400 border border-slate-700">
-                                                    <XCircle className="w-3 h-3 mr-1" /> Inactivo
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button
-                                                onClick={() => openModal(ej)}
-                                                className="text-blue-400 hover:text-blue-300 mr-4 transition-colors"
-                                            >
-                                                <Edit2 className="w-4 h-4 inline" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(ej.id)}
-                                                className="text-red-400 hover:text-red-300 transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4 inline" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {ejercicios.length === 0 && (
+                    {showTable && (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-slate-900/50 text-slate-300 font-medium border-b border-slate-700">
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                                            No hay ejercicios registrados.
-                                        </td>
+                                        <th className="px-6 py-4">ID</th>
+                                        <th className="px-6 py-4 w-1/3">Enunciado</th>
+                                        <th className="px-6 py-4">Respuesta</th>
+                                        <th className="px-6 py-4">Estado</th>
+                                        <th className="px-6 py-4 text-right">Acciones</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>            {/* Modal Form */}
+                                </thead>
+                                <tbody className="divide-y divide-slate-700/50 text-slate-300">
+                                    {ejercicios.map((ej) => (
+                                        <tr key={ej.id} className="hover:bg-slate-700/30 transition-colors">
+                                            <td className="px-6 py-4 text-slate-500">#{ej.id}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="truncate w-64 md:w-96 text-slate-200" title={ej.enunciado_incorrecto}>
+                                                    {ej.enunciado_incorrecto}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-emerald-400">
+                                                {ej.conector_correcto}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {ej.es_activo ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50">
+                                                        <CheckCircle2 className="w-3 h-3 mr-1" /> Activo
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-900/50 text-slate-400 border border-slate-700">
+                                                        <XCircle className="w-3 h-3 mr-1" /> Inactivo
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => openModal(ej)}
+                                                    className="text-blue-400 hover:text-blue-300 mr-4 transition-colors"
+                                                >
+                                                    <Edit2 className="w-4 h-4 inline" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(ej.id)}
+                                                    className="text-red-400 hover:text-red-300 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4 inline" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {ejercicios.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                                                No hay ejercicios registrados.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Modal Form */}
             {
                 isModalOpen && (
                     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
