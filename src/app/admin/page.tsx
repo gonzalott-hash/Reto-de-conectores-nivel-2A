@@ -23,6 +23,8 @@ export default function AdminPage() {
     // Form states
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteKeyword, setDeleteKeyword] = useState("");
     const [showInstructions, setShowInstructions] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [bulkText, setBulkText] = useState("");
@@ -191,12 +193,16 @@ export default function AdminPage() {
         }
     };
 
-    const handleDeleteAll = async () => {
-        const confirmFirst = confirm("¡PRECAUCIÓN! Estás a punto de borrar TODO el banco de ejercicios. Esta acción no se puede deshacer.\n\n¿Realmente deseas borrar todos los ejercicios?");
-        if (!confirmFirst) return;
+    const handleDeleteAll = () => {
+        setDeleteKeyword("");
+        setIsDeleteModalOpen(true);
+    };
 
-        const confirmSecond = confirm("¿Estás ABSOLUTAMENTE seguro? Se perderán todos los datos del banco actual.");
-        if (!confirmSecond) return;
+    const confirmDeleteAll = async () => {
+        if (deleteKeyword !== "ELIMINAR") {
+            alert("Palabra incorrecta. Por favor, escribe la palabra ELIMINAR en mayúsculas.");
+            return;
+        }
 
         try {
             setLoading(true);
@@ -207,6 +213,7 @@ export default function AdminPage() {
             if (res.ok) {
                 const data = await res.json();
                 alert(`¡Limpieza completada! Se han eliminado ${data.borrados} ejercicios.`);
+                setIsDeleteModalOpen(false);
                 fetchEjercicios();
             } else {
                 const errData = await res.json();
@@ -751,6 +758,51 @@ export default function AdminPage() {
                                         }`}
                                 >
                                     {isImporting ? "Procesando..." : "Incorporar Ejercicios"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Delete Confirmation Modal */}
+            {
+                isDeleteModalOpen && (
+                    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                        <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-md border border-red-900/50">
+                            <div className="p-6 border-b border-slate-700 bg-red-900/20 flex items-center">
+                                <Trash2 className="w-6 h-6 text-red-500 mr-2" />
+                                <h3 className="text-xl font-bold text-red-100">
+                                    Eliminar Todo el Banco
+                                </h3>
+                            </div>
+                            <div className="p-6">
+                                <p className="text-slate-300 text-sm mb-4">
+                                    ¡PRECAUCIÓN! Estás a punto de borrar TODO el banco de ejercicios. Esta acción <strong className="text-red-400">no se puede deshacer</strong>.
+                                </p>
+                                <p className="text-slate-400 text-sm mb-4">
+                                    Para confirmar, escribe la palabra <strong className="text-slate-200">ELIMINAR</strong> a continuación:
+                                </p>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-3 bg-slate-900/80 border border-slate-600 rounded-md text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-center font-bold tracking-widest uppercase"
+                                    placeholder="Escribe ELIMINAR"
+                                    value={deleteKeyword}
+                                    onChange={(e) => setDeleteKeyword(e.target.value.toUpperCase())}
+                                />
+                            </div>
+                            <div className="p-4 border-t border-slate-700 bg-slate-800/50 flex justify-end gap-3 rounded-b-xl">
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="px-4 py-2 text-slate-300 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmDeleteAll}
+                                    className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm font-medium flex items-center text-sm ring-1 ring-red-500/50"
+                                >
+                                    Vaciar Banco
                                 </button>
                             </div>
                         </div>
