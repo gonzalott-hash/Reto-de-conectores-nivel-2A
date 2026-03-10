@@ -28,7 +28,7 @@ export default function Home() {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-slate-100 mb-2">
-            Reto de Conectores Lógicos Nivel 2A
+            Reto de Conectores Lógicos Nivel 2
           </h1>
           <p className="text-slate-400 mb-8">
             Demuestra tu dominio sobre los conectores textuales y mejora tu redacción.

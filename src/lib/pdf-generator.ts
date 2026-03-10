@@ -24,7 +24,7 @@ export const generarPDFResultados = ({
     // Header
     doc.setFontSize(22);
     doc.setTextColor(37, 99, 235); // Blue 600
-    doc.text("Reporte: Reto de Conectores Lógicos Nivel 2A", pageWidth / 2, 20, { align: "center" });
+    doc.text("Reporte: Reto de Conectores Lógicos Nivel 2", pageWidth / 2, 20, { align: "center" });
 
     // Info del Estudiante
     doc.setFontSize(12);

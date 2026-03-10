@@ -81,7 +81,7 @@ export default function Instrucciones() {
             <div className="max-w-xl w-full bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
                 <div className="bg-blue-900/80 p-8 text-center text-white border-b border-blue-800">
                     <h1 className="text-2xl font-bold mb-2 text-blue-100">Hola, {nombreAlumno} 👋</h1>
-                    <p className="text-blue-200">Prepárate para iniciar el Reto de Conectores Lógicos Nivel 2A</p>
+                    <p className="text-blue-200">Prepárate para iniciar el Reto de Conectores Lógicos Nivel 2</p>
                 </div>
 
                 <div className="p-8 sm:p-10">

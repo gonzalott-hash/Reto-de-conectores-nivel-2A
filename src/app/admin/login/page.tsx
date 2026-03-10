@@ -53,7 +53,7 @@ export default function AdminLogin() {
                         Acceso Profesores
                     </h2>
 
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
                         <div>
                             <label className="block text-sm font-medium text-slate-300 mb-2">
                                 Contraseña Administrativa
@@ -65,6 +65,7 @@ export default function AdminLogin() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none pr-12"
                                     placeholder="Ingresa la contraseña"
+                                    autoComplete="new-password"
                                     required
                                 />
                                 <button
